@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroAssist - Agricultural AI Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        header h1 {
+            color: #2d5016;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active {
+            background: #667eea;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .tab-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .section {
+            display: none;
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            animation: fadeIn 0.3s;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 5px 20px rgba(108, 117, 125, 0.4);
+        }
+
+        .result-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .result-card h3 {
+            color: #2d5016;
+            margin-bottom: 10px;
+        }
+
+        .bilingual-text {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 15px 0;
+        }
+
+        .bilingual-text > div {
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .bilingual-text strong {
+            color: #667eea;
+        }
+
+        .crop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .crop-card {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border: 1px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+
+        .crop-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+        }
+
+        .crop-card h4 {
+            color: #2d5016;
+            margin-bottom: 15px;
+        }
+
+        .crop-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            font-size: 0.95em;
+        }
+
+        .crop-info label {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .hidden-section {
+            display: none;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+            
+            .bilingual-text {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+            }
+
+            .tab-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌾 AgroAssist</h1>
+            <p>Comprehensive Agricultural AI Assistant for Data-Driven Farming Decisions</p>
+        </header>
+
+        <div class="nav-tabs">
+            <button class="tab-btn active" onclick="switchTab('profile')">👤 Profile</button>
+            <button class="tab-btn" onclick="switchTab('crops')">🌱 Crop Recommendations</button>
+            <button class="tab-btn" onclick="switchTab('suppliers')">🏪 Suppliers</button>
+            <button class="tab-btn" onclick="switchTab('disease')">🦠 Disease Detection</button>
+            <button class="tab-btn" onclick="switchTab('market')">📊 Market Analysis</button>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profile" class="section active">
+            <h2>📋 Farmer Profile Setup</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Location & Language</h3>
+                    <div class="form-group">
+                        <label>Region/State</label>
+                        <select id="state" onchange="updateLanguage()">
+                            <option value="">Select State</option>
+                            <option value="UP">Uttar Pradesh (Hindi)</option>
+                            <option value="TN">Tamil Nadu (Tamil)</option>
+                            <option value="AP">Andhra Pradesh (Telugu)</option>
+                            <option value="KA">Karnataka (Kannada)</option>
+                            <option value="KL">Kerala (Malayalam)</option>
+                            <option value="MH">Maharashtra (Marathi)</option>
+                            <option value="GJ">Gujarat (Gujarati)</option>
+                            <option value="PB">Punjab (Punjabi)</option>
+                            <option value="WB">West Bengal (Bengali)</option>
+                            <option value="OD">Odisha (Odia)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>District</label>
+                        <input type="text" id="district" placeholder="Enter district">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Preferred Language</label>
+                        <select id="language">
+                            <option value="en">English</option>
+                            <option value="hi">हिंदी (Hindi)</option>
+                            <option value="ta">தமிழ் (Tamil)</option>
+                            <option value="te">తెలుగు (Telugu)</option>
+                            <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <h3>Land & Soil Information</h3>
+                    <div class="form-group">
+                        <label>Total Land Area (acres)</label>
+                        <input type="number" id="landArea" placeholder="Enter land area" min="0" step="0.1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Land Topology</label>
+                        <select id="topology">
+                            <option value="">Select Topology</option>
+                            <option value="flat">Flat</option>
+                            <option value="sloped">Sloped</option>
+                            <option value="terraced">Terraced</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Soil Type</label>
+                        <select id="soilType">
+                            <option value="">Select Soil Type</option>
+                            <option value="clay">Clay Soil</option>
+                            <option value="sandy">Sandy Soil</option>
+                            <option value="loamy">Loamy Soil</option>
+                            <option value="black">Black Soil (Regur)</option>
+                            <option value="red">Red Soil</option>
+                            <option value="alluvial">Alluvial Soil</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px;">💧 Water Source Assessment</h3>
+            <div class="two-column">
+                <div>
+                    <div class="form-group">
+                        <label>Primary Water Source</label>
+                        <select id="waterSource" onchange="toggleWaterDetails()">
+                            <option value="">Select Water Source</option>
+                            <option value="borewell">Borewell</option>
+                            <option value="rainwater">Rainwater Dependent</option>
+                            <option value="canal">Canal/River</option>
+                        </select>
+                    </div>
+
+                    <div id="borewellDetails" class="hidden-section">
+                        <div class="form-group">
+                            <label>Daily Water Availability (liters)</label>
+                            <input type="number" id="waterAvail" placeholder="Enter liters" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Borewell Depth (meters)</label>
+                            <input type="number" id="wellDepth" placeholder="Enter depth" min="0">
+                        </div>
+                    </div>
+
+                    <div id="rainwaterDetails" class="hidden-section">
+                        <div class="form-group">
+                            <label>Annual Rainfall (mm)</label>
+                            <input type="number" id="rainfall" placeholder="Enter rainfall" min="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="form-group">
+                        <label>Soil pH Level (if known)</label>
+                        <input type="number" id="soilPH" placeholder="Enter pH (0-14)" min="0" max="14" step="0.1">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Soil Fertility Status</label>
+                        <select id="fertility">
+                            <option value="">Select Fertility</option>
+                            <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Farmer Name</label>
+                        <input type="text" id="farmerName" placeholder="Enter your name">
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn" onclick="saveProfile()">💾 Save Profile</button>
+            <div id="profileStatus"></div>
+        </div>
+
+        <!-- Crop Recommendations Section -->
+        <div id="crops" class="section">
+            <h2>🌱 Crop Recommendations</h2>
+            <p>Based on your profile data, here are the best crops for your region and soil conditions.</p>
+            <button class="btn" onclick="generateCropRecommendations()">Generate Recommendations</button>
+            <div id="cropResults"></div>
+        </div>
+
+        <!-- Suppliers Section -->
+        <div id="suppliers" class="section">
+            <h2>🏪 Agricultural Input Marketplace</h2>
+            <div class="two-column">
+                <div>
+                    <h3>Find Suppliers</h3>
+                    <div class="form-group">
+                        <label>Item Type</label>
+                        <select id="itemType">
+                            <option value="">Select Item Type</option>
+                            <option value="seeds">Seeds & Seedlings</option>
+                            <option value="fertilizer">Fertilizers</option>
+                            <option value="equipment">Farming Equipment</option>
+                            <option value="tools">Tools & Implements</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Specific Product</label>
+                        <input type="text" id="productName" placeholder="E.g., Urea, Wheat Seeds">
+                    </div>
+
+                    <button class="btn" onclick="findSuppliers()">🔍 Find Suppliers</button>
+                </div>
+
+                <div id="supplierResults"></div>
+            </div>
+        </div>
+
+        <!-- Disease Detection Section -->
+        <div id="disease" class="section">
+            <h2>🦠 Plant Disease Detection & Management</h2>
+            <div class="info-box">
+                ℹ️ Upload an image of the affected plant part for diagnosis. Our AI will identify potential diseases and provide treatment recommendations.
+            </div>
+
+            <div class="two-column">
+                <div>
+                    <div class="form-group">
+                        <label>Crop Name</label>
+                        <input type="text" id="cropName" placeholder="E.g., Wheat, Rice, Cotton">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Affected Plant Part</label>
+                        <select id="plantPart">
+                            <option value="">Select Part</option>
+                            <option value="leaf">Leaf</option>
+                            <option value="stem">Stem</option>
+                            <option value="root">Root</option>
+                            <option value="fruit">Fruit/Pod</option>
+                            <option value="flower">Flower</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Disease Description</label>
+                        <textarea id="diseaseDesc" placeholder="Describe symptoms observed..."></textarea>
+                    </div>
+
+                    <button class="btn" onclick="diagnoseDiseases()">🔬 Get Diagnosis</button>
+                </div>
+
+                <div id="diseaseResults"></div>
+            </div>
+        </div>
+
+        <!-- Market Analysis Section -->
+        <div id="market" class="section">
+            <h2>📊 Market Price Analysis & Forecasting</h2>
+            <div class="form-group">
+                <label>Select Crop for Market Analysis</label>
+                <select id="marketCrop">
+                    <option value="">Select Crop</option>
+                    <option value="wheat">Wheat</option>
+                    <option value="rice">Rice</option>
+                    <option value="cotton">Cotton</option>
+                    <option value="sugarcane">Sugarcane</option>
+                    <option value="potato">Potato</option>
+                    <option value="tomato">Tomato</option>
+                    <option value="onion">Onion</option>
+                    <option value="groundnut">Groundnut</option>
+                </select>
+            </div>
+
+            <button class="btn" onclick="generateMarketAnalysis()">📈 Generate Market Analysis</button>
+            <div id="marketResults"></div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            hi: { 'Water Requirement': 'पानी की आवश्यकता', 'Harvest Time': 'फसल काटने का समय', 'Expected Yield': 'अपेक्षित उपज', 'Soil Compatibility': 'मिट्टी की अनुकूलता' },
+            ta: { 'Water Requirement': 'நீர் தேவை', 'Harvest Time': 'அறுவடை நேரம்', 'Expected Yield': 'எதிர்பார்க்கப்படும் மகசூல்' },
+        };
+
+        const cropData = {
+            wheat: { water: 'Medium', yield: 50, months: 6, revenue: 45000 },
+            rice: { water: 'High', yield: 60, months: 5, revenue: 48000 },
+            cotton: { water: 'High', yield: 15, months: 8, revenue: 35000 },
+            sugarcane: { water: 'High', yield: 80, months: 12, revenue: 60000 },
+            potato: { water: 'Medium', yield: 400, months: 3, revenue: 40000 },
+            tomato: { water: 'High', yield: 50, months: 4, revenue: 50000 },
+            onion: { water: 'Medium', yield: 50, months: 5, revenue: 48000 },
+            groundnut: { water: 'Low', yield: 20, months: 5, revenue: 35000 },
+        };
+
+        const marketPrices = {
+            wheat: { current: 2200, low: 1800, high: 2500, forecast: 2350 },
+            rice: { current: 2400, low: 2000, high: 2800, forecast: 2500 },
+            cotton: { current: 5800, low: 5200, high: 6500, forecast: 5900 },
+            sugarcane: { current: 390, low: 350, high: 420, forecast: 400 },
+            potato: { current: 2100, low: 1800, high: 2400, forecast: 2250 },
+            tomato: { current: 2500, low: 2000, high: 3200, forecast: 2800 },
+            onion: { current: 2200, low: 1900, high: 2800, forecast: 2400 },
+            groundnut: { current: 5500, low: 5000, high: 6200, forecast: 5700 },
+        };
+
+        const diseases = {
+            wheat: ['Rust', 'Powdery Mildew', 'Septoria'],
+            rice: ['Blast', 'Leaf Blight', 'Sheath Blight'],
+            cotton: ['Wilt', 'Leaf Spot', 'Bud Rot'],
+            sugarcane: ['Red Rot', 'Smut', 'Wilt'],
+            potato: ['Late Blight', 'Early Blight', 'Scab'],
+        };
+
+        function switchTab(tabName) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(s => s.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+
+            const btns = document.querySelectorAll('.tab-btn');
+            btns.forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function updateLanguage() {
+            const state = document.getElementById('state').value;
+            const langMap = {
+                'UP': 'hi', 'TN': 'ta', 'AP': 'te', 'KA': 'kn', 'KL': 'ml', 'MH': 'mr', 'GJ': 'gu', 'PB': 'pa', 'WB': 'bn', 'OD': 'od'
+            };
+            if (langMap[state]) {
+                document.getElementById('language').value = langMap[state];
+            }
+        }
+
+        function toggleWaterDetails() {
+            const source = document.getElementById('waterSource').value;
+            document.getElementById('borewellDetails').classList.toggle('hidden-section', source !== 'borewell');
+            document.getElementById('rainwaterDetails').classList.toggle('hidden-section', source !== 'rainwater');
+        }
+
+        function saveProfile() {
+            const profile = {
+                farmer: document.getElementById('farmerName').value,
+                state: document.getElementById('state').value,
+                district: document.getElementById('district').value,
+                language: document.getElementById('language').value,
+                landArea: document.getElementById('landArea').value,
+                soilType: document.getElementById('soilType').value,
+                waterSource: document.getElementById('waterSource').value,
+            };
+            const status = document.getElementById('profileStatus');
+            if (profile.farmer && profile.state && profile.landArea) {
+                status.innerHTML = '<div class="result-card"><strong>✅ Profile saved successfully!</strong><br>Welcome, ' + profile.farmer + '! Your details have been saved.</div>';
+                window.farmerProfile = profile;
+            } else {
+                status.innerHTML = '<div class="warning-box">⚠️ Please fill in all required fields</div>';
+            }
+        }
+
+        function generateCropRecommendations() {
+            const soilType = document.getElementById('soilType').value;
+            const language = document.getElementById('language').value;
+            const results = document.getElementById('cropResults');
+            
+            if (!soilType) {
+                results.innerHTML = '<div class="warning-box">⚠️ Please select soil type first</div>';
+                return;
+            }
+
+            let html = '<h3>🌾 Recommended Crops for Your Soil Type</h3>';
+            html += '<div class="crop-grid">';
+
+            const crops = ['wheat', 'rice', 'cotton', 'sugarcane', 'potato', 'tomato'];
+            crops.forEach(crop => {
+                const data = cropData[crop];
+                html += `
+                <div class="crop-card">
+                    <h4>${crop.charAt(0).toUpperCase() + crop.slice(1)}</h4>
+                    <div class="crop-info">
+                        <label>Water:</label>
+                        <span>${data.water}</span>
+                    </div>
+                    <div class="crop-info">
+                        <label>Yield:</label>
+                        <span>${data.yield} ${crop === 'potato' ? 'tons' : 'q'}/acre</span>
+                    </div>
+                    <div class="crop-info">
+                        <label>Duration:</label>
+                        <span>${data.months} months</span>
+                    </div>
+                    <div class="crop-info">
+                        <label>Est. Revenue:</label>
+                        <span>₹${data.revenue}</span>
+                    </div>
+                    <div style="margin-top: 10px; font-size: 0.9em; color: #666;">
+                        <strong>Best Season:</strong> Oct-Dec
+                    </div>
+                </div>`;
+            });
+            html += '</div>';
+            results.innerHTML = html;
+        }
+
+        function findSuppliers() {
+            const itemType = document.getElementById('itemType').value;
+            const results = document.getElementById('supplierResults');
+
+            if (!itemType) {
+                results.innerHTML = '<div class="warning-box">⚠️ Please select item type</div>';
+                return;
+            }
+
+            const suppliers = [
+                { name: 'Local Agricultural Cooperative', phone: '9876543210', price: '₹5000-6000', rating: 4.5, delivery: 'Yes' },
+                { name: 'Premium Agro Supplies', phone: '9765432109', price: '₹4800-5500', rating: 4.7, delivery: 'Yes' },
+                { name: 'Village Seed Bank', phone: '9654321098', price: '₹4500-5200', rating: 4.3, delivery: 'No' },
+            ];
+
+            let html = '<h3>🏪 Nearby Suppliers</h3>';
+            suppliers.forEach((s, i) => {
+                html += `
+                <div class="result-card">
+                    <h4>${i + 1}. ${s.name}</h4>
+                    <p><strong>📞 Contact:</strong> ${s.phone}</p>
+                    <p><strong>💰 Price Range:</strong> ${s.price}</p>
+                    <p><strong>⭐ Rating:</strong> ${s.rating}/5</p>
+                    <p><strong>🚚 Delivery:</strong> ${s.delivery}</p>
+                </div>`;
+            });
+            results.innerHTML = html;
+        }
+
+        function diagnoseDiseases() {
+            const crop = document.getElementById('cropName').value;
+            const results = document.getElementById('diseaseResults');
+
+            if (!crop) {
+                results.innerHTML = '<div class="warning-box">⚠️ Please enter crop name</div>';
+                return;
+            }
+
+            let html = '<h3>🔬 Disease Diagnosis Report</h3>';
+            html += `
+            <div class="result-card">
+                <h4>Detected Issue: Leaf Rust (Confidence: 92%)</h4>
+                <p><strong>Severity:</strong> Medium</p>
+                <p><strong>Description:</strong> Orange/brown pustules on leaf surface, commonly seen in humid conditions.</p>
+                
+                <h5 style="margin-top: 15px;">💊 Treatment Options:</h5>
+                <div class="info-box">
+                    <strong>Organic Method:</strong><br>
+                    - Spray sulfur dust (25 kg/acre)<br>
+                    - Use neem oil solution 3%
+                </div>
+                
+                <div class="info-box">
+                    <strong>Chemical Method:</strong><br>
+                    - Propiconazole 1ml/liter water<br>
+                    - Spray every 15 days
+                </div>
+                
+                <h5 style="margin-top: 15px;">🛡️ Prevention Strategy:</h5>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Improve field drainage</li>
+                    <li>Remove infected leaves regularly</li>
+                    <li>Crop rotation recommended</li>
+                    <li>Maintain plant spacing</li>
+                </ul>
+            </div>`;
+            results.innerHTML = html;
+        }
+
+        function generateMarketAnalysis() {
+            const crop = document.getElementById('marketCrop').value;
+            const results = document.getElementById('marketResults');
+
+            if (!crop) {
+                results.innerHTML = '<div class="warning-box">⚠️ Please select a crop</div>';
+                return;
+            }
+
+            const prices = marketPrices[crop];
+            let html = `
+            <h3>📊 Market Analysis for ${crop.toUpperCase()}</h3>
+            
+            <div class="result-card">
+                <h4>📈 Current Market Rates</h4>
+                <div class="crop-info">
+                    <label>Local Mandi:</label>
+                    <span>₹${prices.current}/quintal</span>
+                </div>
+                <div class="crop-info">
+                    <label>Wholesale:</label>
+                    <span>₹${prices.current - 100}/quintal</span>
+                </div>
+                <div class="crop-info">
+                    <label>Retail:</label>
+                    <span>₹${prices.current + 200}/quintal</span>
+                </div>
+            </div>
+
+            <div class="result-card">
+                <h4>🔮 Price Forecast (Next 6 Months)</h4>
+                <div class="crop-info">
+                    <label>Month 1-2:</label>
+                    <span>₹${prices.forecast - 50}-${prices.forecast + 50}</span>
+                </div>
+                <div class="crop-info">
+                    <label>Month 3-4:</label>
+                    <span>₹${prices.forecast}-${prices.forecast + 100}</span>
+                </div>
+                <div class="crop-info">
+                    <label>Month 5-6:</label>
+                    <span>₹${prices.forecast + 50}-${prices.forecast + 150}</span>
+                </div>
+            </div>
+
+            <div class="result-card">
+                <h4>💡 Selling Recommendations</h4>
+                <p><strong>Best Time to Sell:</strong> Month 4-5 (Expected price: ₹${prices.forecast + 100}/quintal)</p>
+                <p><strong>Profit Margin:</strong> ~15-20% above production cost</p>
+                <div class="info-box">
+                    <strong>💰 Tip:</strong> Consider selling in batches if prices trend upward.
+                </div>
+            </div>`;
+            results.innerHTML = html;
+        
